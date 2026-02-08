@@ -30,13 +30,10 @@ export function ReportMap({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
-  const initializingRef = useRef(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Prevent double initialization in React 18 Strict Mode
-    if (initializingRef.current) return;
-    initializingRef.current = true;
+    let mounted = true;
 
     const loadMap = async () => {
       if (typeof window === "undefined") return;
@@ -44,42 +41,78 @@ export function ReportMap({
       const container = mapContainerRef.current;
       if (!container) return;
 
-      const L = (await import("leaflet")).default;
+      // Wait for container to have valid dimensions
+      await new Promise<void>((resolve) => {
+        const checkDimensions = () => {
+          if (!mounted) {
+            resolve(); // Exit early if unmounted
+            return;
+          }
+          if (container.offsetWidth > 0 && container.offsetHeight > 0) {
+            resolve();
+          } else {
+            requestAnimationFrame(checkDimensions);
+          }
+        };
+        requestAnimationFrame(checkDimensions);
+      });
 
-      // Fix for default marker icons
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      // Check if still mounted after waiting
+      if (!mounted) return;
 
-      // Clean up any existing Leaflet state
-      const containerAny = container as any;
-      if (containerAny._leaflet_id) {
-        delete containerAny._leaflet_id;
+      try {
+        const L = (await import("leaflet")).default;
+
+        // Check again after dynamic import
+        if (!mounted || !mapContainerRef.current) return;
+
+        // Fix for default marker icons
+        delete (L.Icon.Default.prototype as any)._getIconUrl;
+
+        // Clean up any existing Leaflet state on the container
+        const containerAny = container as any;
+        if (containerAny._leaflet_id) {
+          delete containerAny._leaflet_id;
+        }
+        while (container.firstChild) {
+          container.removeChild(container.firstChild);
+        }
+
+        // Final check before creating map
+        if (!mounted) return;
+
+        const map = L.map(container).setView(
+          [KINGSTON_CENTER.lat, KINGSTON_CENTER.lng],
+          13
+        );
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(map);
+
+        mapInstanceRef.current = map;
+        setIsLoaded(true);
+
+        // Invalidate size after initialization
+        setTimeout(() => {
+          if (mounted && map) {
+            map.invalidateSize();
+          }
+        }, 100);
+      } catch (error) {
+        console.error("Failed to initialize map:", error);
       }
-      while (container.firstChild) {
-        container.removeChild(container.firstChild);
-      }
-
-      const map = L.map(container).setView(
-        [KINGSTON_CENTER.lat, KINGSTON_CENTER.lng],
-        13
-      );
-
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      }).addTo(map);
-
-      mapInstanceRef.current = map;
-      setIsLoaded(true);
     };
 
     loadMap();
 
     return () => {
+      mounted = false;
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
-      initializingRef.current = false;
     };
   }, []);
 

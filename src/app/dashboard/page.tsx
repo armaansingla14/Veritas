@@ -11,6 +11,7 @@ import {
   MapPin,
   ExternalLink,
   X,
+  TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/ui/card";
@@ -21,7 +22,13 @@ import { LanguageSelector, useTranslation } from "@/components/LanguageSelector"
 import { ReportCard } from "@/components/ReportCard";
 import { ReportMap } from "@/components/ReportMap";
 import { FilterBar } from "@/components/FilterBar";
+import { VoteButton } from "@/components/VoteButton";
+import { FollowButton } from "@/components/FollowButton";
 import type { Report } from "@/drizzle/schema";
+
+interface TrendingReport extends Report {
+  voteCount: number;
+}
 
 export default function DashboardPage() {
   const { t } = useTranslation();
@@ -34,11 +41,28 @@ export default function DashboardPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [sessionId, setSessionId] = useState<string>("");
   const [activeTab, setActiveTab] = useState("all");
+  const [trendingReports, setTrendingReports] = useState<TrendingReport[]>([]);
 
   // Get session ID
   useEffect(() => {
     const id = localStorage.getItem("veritas-session-id") || "";
     setSessionId(id);
+  }, []);
+
+  // Fetch trending reports
+  useEffect(() => {
+    const fetchTrending = async () => {
+      try {
+        const response = await fetch("/api/reports/trending?limit=5");
+        if (response.ok) {
+          const data = await response.json();
+          setTrendingReports(data.trending);
+        }
+      } catch (error) {
+        console.error("Error fetching trending:", error);
+      }
+    };
+    fetchTrending();
   }, []);
 
   // Fetch reports
@@ -155,6 +179,45 @@ export default function DashboardPage() {
           </GlassCard>
         </div>
 
+        {/* Trending Issues */}
+        {trendingReports.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp className="w-5 h-5 text-amber-400" />
+              <h2 className="text-lg font-semibold text-white">Trending Issues</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+              {trendingReports.slice(0, 5).map((report) => (
+                <GlassCard
+                  key={report.id}
+                  className="p-3 cursor-pointer hover:border-indigo-500/50 transition-colors"
+                  onClick={() => setSelectedReport(report)}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <Badge variant="secondary" className="text-xs">
+                      {report.type}
+                    </Badge>
+                    {sessionId && (
+                      <VoteButton
+                        reportId={report.id}
+                        sessionId={sessionId}
+                        initialVoteCount={report.voteCount}
+                        size="sm"
+                      />
+                    )}
+                  </div>
+                  <p className="text-sm text-white truncate mb-1">
+                    {report.triageTitle || report.description.slice(0, 50)}
+                  </p>
+                  <p className="text-xs text-slate-400 truncate">
+                    {report.address.split(",")[0]}
+                  </p>
+                </GlassCard>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
           <TabsList>
@@ -226,6 +289,8 @@ export default function DashboardPage() {
                         report={report}
                         onClick={() => setSelectedReport(report)}
                         isSelected={selectedReport?.id === report.id}
+                        sessionId={sessionId}
+                        showVotes={true}
                       />
                     ))}
                   </div>
@@ -251,6 +316,22 @@ export default function DashboardPage() {
                       <X className="w-4 h-4" />
                     </Button>
                   </div>
+
+                  {/* Vote and Follow buttons */}
+                  {sessionId && (
+                    <div className="flex gap-2 mb-4">
+                      <VoteButton
+                        reportId={selectedReport.id}
+                        sessionId={sessionId}
+                        size="default"
+                      />
+                      <FollowButton
+                        reportId={selectedReport.id}
+                        sessionId={sessionId}
+                        size="default"
+                      />
+                    </div>
+                  )}
 
                   {selectedReport.photoUrl && (
                     <img

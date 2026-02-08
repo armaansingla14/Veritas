@@ -20,14 +20,11 @@ export function MapPicker({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
-  const initializingRef = useRef(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [address, setAddress] = useState("");
 
   useEffect(() => {
-    // Prevent double initialization in React 18 Strict Mode
-    if (initializingRef.current) return;
-    initializingRef.current = true;
+    let mounted = true;
 
     // Dynamic import of Leaflet
     const loadMap = async () => {
@@ -36,7 +33,29 @@ export function MapPicker({
       const container = mapContainerRef.current;
       if (!container) return;
 
+      // Wait for container to have valid dimensions
+      await new Promise<void>((resolve) => {
+        const checkDimensions = () => {
+          if (!mounted) {
+            resolve(); // Exit early if unmounted
+            return;
+          }
+          if (container.offsetWidth > 0 && container.offsetHeight > 0) {
+            resolve();
+          } else {
+            requestAnimationFrame(checkDimensions);
+          }
+        };
+        requestAnimationFrame(checkDimensions);
+      });
+
+      // Check if still mounted after waiting
+      if (!mounted) return;
+
       const L = (await import("leaflet")).default;
+
+      // Check again after dynamic import
+      if (!mounted || !mapContainerRef.current) return;
 
       // Fix for default marker icons in webpack
       delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -57,6 +76,9 @@ export function MapPicker({
       while (container.firstChild) {
         container.removeChild(container.firstChild);
       }
+
+      // Final check before creating map
+      if (!mounted) return;
 
       const initialCenter = {
         lat: initialLat || KINGSTON_CENTER.lat,
@@ -98,17 +120,24 @@ export function MapPicker({
 
       mapInstanceRef.current = map;
       setIsLoaded(true);
+
+      // Invalidate size after initialization
+      setTimeout(() => {
+        if (mounted && map) {
+          map.invalidateSize();
+        }
+      }, 100);
     };
 
     loadMap();
 
     // Cleanup
     return () => {
+      mounted = false;
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
-      initializingRef.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Run once on mount

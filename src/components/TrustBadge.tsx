@@ -63,6 +63,11 @@ export function TrustBadge() {
         >
           <Shield className="w-3 h-3 mr-1" />
           {status.solanaEnabled ? "Blockchain Verified" : "Integrity Verified"}
+          {status.totalEntries > 0 && (
+            <span className="ml-1 px-1.5 py-0.5 text-[10px] bg-white/20 rounded-full">
+              {status.totalEntries}
+            </span>
+          )}
         </Badge>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md bg-slate-900 border-slate-700">

@@ -36,6 +36,12 @@ const DEFAULT_LOCATION = {
   address: "Kingston, Ontario, Canada"
 };
 
+// Default coordinates for location biasing
+const DEFAULT_COORDS = {
+  lat: 44.2312,
+  lng: -76.486,
+};
+
 type IssueType =
   | "pothole"
   | "noise"
@@ -112,6 +118,7 @@ export default function ReportPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [reportId, setReportId] = useState<string | null>(null);
+  const [auditHash, setAuditHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Form state
@@ -128,6 +135,9 @@ export default function ReportPage() {
   } | null>(null);
   const [photoUrl, setPhotoUrl] = useState("");
 
+  // User's geolocation for biasing results
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+
   // Session ID for tracking user's reports
   const [sessionId, setSessionId] = useState<string>("");
 
@@ -139,6 +149,26 @@ export default function ReportPage() {
       localStorage.setItem("veritas-session-id", id);
     }
     setSessionId(id);
+  }, []);
+
+  // Get user's location on mount
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        () => {
+          // Fall back to Kingston center if geolocation denied
+          setUserLocation(DEFAULT_COORDS);
+        }
+      );
+    } else {
+      setUserLocation(DEFAULT_COORDS);
+    }
   }, []);
 
   const canProceed = () => {
@@ -176,14 +206,18 @@ export default function ReportPage() {
 
     const timer = setTimeout(async () => {
       setIsSearching(true);
-      const results = await searchAddresses(addressInput);
+      const results = await searchAddresses(addressInput, 5, {
+        countryCode: "ca",
+        nearLat: userLocation?.lat,
+        nearLng: userLocation?.lng,
+      });
       setSuggestions(results);
       setShowDropdown(results.length > 0);
       setIsSearching(false);
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [addressInput]);
+  }, [addressInput, userLocation]);
 
   const handleSuggestionClick = (suggestion: GeocodingResult) => {
     setLocation({
@@ -231,6 +265,7 @@ export default function ReportPage() {
 
       const data = await response.json();
       setReportId(data.report.id);
+      setAuditHash(data.auditHash || null);
 
       // Trigger triage
       await fetch("/api/triage", {
@@ -562,18 +597,55 @@ export default function ReportPage() {
               <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-8 h-8 text-emerald-600" />
               </div>
-              <h2 className="text-2xl font-bold mb-2">Report Submitted!</h2>
-              <p className="text-muted-foreground mb-4">
+              <h2 className="text-2xl font-bold mb-2 text-white">Report Submitted!</h2>
+              <p className="text-slate-300 mb-4">
                 Thank you for helping improve our community.
               </p>
               {reportId && (
-                <p className="text-sm mb-6">
-                  Your report ID:{" "}
-                  <code className="px-2 py-1 rounded bg-muted font-mono">
+                <p className="text-sm mb-4 text-slate-400">
+                  Report ID:{" "}
+                  <code className="px-2 py-1 rounded bg-slate-700 font-mono text-white">
                     {reportId.slice(0, 8)}
                   </code>
                 </p>
               )}
+
+              {/* Blockchain Verification Badge */}
+              {auditHash && (
+                <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border border-purple-500/30">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Shield className="w-5 h-5 text-purple-400" />
+                    <span className="font-semibold text-purple-300">Anchored to Solana Blockchain</span>
+                  </div>
+                  <p className="text-xs text-slate-400 mb-3">
+                    Your report is cryptographically sealed in our hash chain and anchored to Solana devnet for tamper-proof verification.
+                  </p>
+                  <div className="flex flex-col items-center gap-2">
+                    <code className="text-xs px-3 py-1.5 rounded bg-slate-800 font-mono text-emerald-300 border border-emerald-500/30">
+                      {auditHash}
+                    </code>
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href="/trust"
+                        className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+                      >
+                        <Shield className="w-3 h-3" />
+                        Verify on Trust Dashboard
+                      </Link>
+                      <a
+                        href="https://explorer.solana.com/?cluster=devnet"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1"
+                      >
+                        Solana Explorer
+                        <ArrowRight className="w-3 h-3" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button variant="outline" onClick={() => router.push("/dashboard")}>
                   <MapPin className="w-4 h-4 mr-2" />
@@ -592,6 +664,7 @@ export default function ReportPage() {
                     setShowDropdown(false);
                     setPhotoUrl("");
                     setReportId(null);
+                    setAuditHash(null);
                   }}
                 >
                   <AlertTriangle className="w-4 h-4 mr-2" />

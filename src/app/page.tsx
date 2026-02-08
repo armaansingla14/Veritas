@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MessageSquare, AlertTriangle, LayoutDashboard, Shield, CheckCircle, Sparkles } from "lucide-react";
+import { MessageSquare, AlertTriangle, LayoutDashboard, Shield, CheckCircle, Sparkles, Camera, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/ui/card";
 import { AccessibilityToggle } from "@/components/AccessibilityToggle";
@@ -45,10 +45,16 @@ export default function Home() {
       {/* Hero Section */}
       <main className="container mx-auto px-4 pt-32 pb-16 relative z-10">
         <div className="max-w-4xl mx-auto text-center mb-16 animate-fade-in-up">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 mb-6 backdrop-blur-sm">
-            <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium">AI-Powered Civic Platform</span>
+          {/* Badges */}
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 backdrop-blur-sm">
+              <Sparkles className="w-4 h-4" />
+              <span className="text-sm font-medium">AI-Powered Civic Platform</span>
+            </div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 backdrop-blur-sm">
+              <Shield className="w-4 h-4" />
+              <span className="text-sm font-medium">Built for Kingston</span>
+            </div>
           </div>
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6">
             <span className="gradient-text drop-shadow-lg">Truth and Clarity</span>
@@ -62,7 +68,7 @@ export default function Home() {
         </div>
 
         {/* Feature Cards */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-8">
           {/* Ask a Question Card */}
           <Link href="/ask" className="block group">
             <GlassCard className="p-8 h-full hover:shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300 hover:-translate-y-2 hover:border-indigo-400/50">
@@ -138,6 +144,75 @@ export default function Home() {
           </Link>
         </div>
 
+        {/* Secondary Feature Cards */}
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
+          {/* AI Vision Scanner Card */}
+          <Link href="/scan" className="block group">
+            <GlassCard className="p-8 h-full hover:shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300 hover:-translate-y-2 hover:border-emerald-400/50">
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-lg shadow-emerald-500/30">
+                  <Camera className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-semibold mb-2 text-white">AI Scanner</h2>
+                  <p className="text-slate-300 mb-4">
+                    Upload a photo and let AI automatically detect civic issues
+                    like potholes, graffiti, and damaged infrastructure.
+                  </p>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center gap-2 text-emerald-400">
+                      <CheckCircle className="w-4 h-4" />
+                      Auto-detect issues
+                    </li>
+                    <li className="flex items-center gap-2 text-emerald-400">
+                      <CheckCircle className="w-4 h-4" />
+                      One-click reporting
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-6">
+                <Button variant="outline" className="w-full border-emerald-500/50 hover:bg-emerald-500/10 text-white" size="lg">
+                  Scan Photo
+                </Button>
+              </div>
+            </GlassCard>
+          </Link>
+
+          {/* Trust Dashboard Card */}
+          <Link href="/trust" className="block group">
+            <GlassCard className="p-8 h-full hover:shadow-2xl hover:shadow-cyan-500/20 transition-all duration-300 hover:-translate-y-2 hover:border-cyan-400/50">
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-lg shadow-cyan-500/30">
+                  <BarChart3 className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-semibold mb-2 text-white">Trust Dashboard</h2>
+                  <p className="text-slate-300 mb-4">
+                    View transparency metrics, blockchain verification status,
+                    and the tamper-evident audit chain.
+                  </p>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center gap-2 text-emerald-400">
+                      <CheckCircle className="w-4 h-4" />
+                      Blockchain verified
+                    </li>
+                    <li className="flex items-center gap-2 text-emerald-400">
+                      <CheckCircle className="w-4 h-4" />
+                      Full audit history
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-6">
+                <Button variant="outline" className="w-full border-cyan-500/50 hover:bg-cyan-500/10 text-white" size="lg">
+                  View Trust Metrics
+                </Button>
+              </div>
+            </GlassCard>
+          </Link>
+        </div>
+
         {/* Dashboard Link */}
         <div className="max-w-4xl mx-auto">
           <Link href="/dashboard" className="block group">
@@ -160,9 +235,24 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* Trust Badge */}
-        <div className="max-w-4xl mx-auto mt-12 text-center">
-          <TrustBadge />
+        {/* Trust & Transparency Section */}
+        <div className="max-w-4xl mx-auto mt-12">
+          <GlassCard className="p-6 hover:shadow-xl hover:shadow-purple-500/20 transition-all duration-300 hover:border-purple-400/50">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                  <Shield className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-center sm:text-left">
+                  <h3 className="text-lg font-semibold text-white">Blockchain-Verified Transparency</h3>
+                  <p className="text-sm text-slate-300">
+                    Every interaction is cryptographically logged on Solana for public accountability
+                  </p>
+                </div>
+              </div>
+              <TrustBadge />
+            </div>
+          </GlassCard>
         </div>
       </main>
 

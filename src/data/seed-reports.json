@@ -94,5 +94,65 @@
     "suggestedDepartment": "parks",
     "triageTitle": "Overflowing garbage at Lake Ontario Park",
     "triageExplanation": "Park maintenance issue affecting visitor experience"
+  },
+  {
+    "type": "pothole",
+    "description": "Nid-de-poule profond sur la rue Ontario près du marché. Le trou fait environ 40cm et est dangereux pour les cyclistes. Plusieurs personnes ont failli tomber.",
+    "latitude": 44.2295,
+    "longitude": -76.4789,
+    "address": "75 Rue Ontario, Kingston, ON",
+    "status": "new",
+    "severity": "high",
+    "suggestedDepartment": "roads",
+    "triageTitle": "Deep pothole on Ontario Street",
+    "triageExplanation": "Hazard for cyclists near downtown market area"
+  },
+  {
+    "type": "streetlight",
+    "description": "Trois lampadaires consécutifs ne fonctionnent pas sur la rue Johnson. La zone est complètement sombre la nuit, ce qui pose des problèmes de sécurité.",
+    "latitude": 44.2278,
+    "longitude": -76.4901,
+    "address": "Rue Johnson, Kingston, ON",
+    "status": "acknowledged",
+    "severity": "high",
+    "suggestedDepartment": "utilities",
+    "triageTitle": "Multiple streetlights out on Johnson Street",
+    "triageExplanation": "Safety concern with dark street section"
+  },
+  {
+    "type": "noise",
+    "description": "Construction work starting at 6am every morning on Bagot Street. The city bylaw says construction can't start before 7am. This has been happening for 2 weeks and residents can't sleep.",
+    "latitude": 44.2331,
+    "longitude": -76.4867,
+    "address": "150 Bagot Street, Kingston, ON",
+    "status": "in_progress",
+    "severity": "medium",
+    "suggestedDepartment": "bylaw",
+    "triageTitle": "Early morning construction noise violation",
+    "triageExplanation": "Construction starting before permitted hours"
+  },
+  {
+    "type": "sidewalk",
+    "description": "Ice buildup on sidewalk outside 200 Wellington Street. Property owner hasn't cleared it in 3 days despite multiple snowfalls. Very slippery and dangerous for pedestrians.",
+    "latitude": 44.2308,
+    "longitude": -76.4855,
+    "address": "200 Wellington Street, Kingston, ON",
+    "status": "new",
+    "severity": "high",
+    "suggestedDepartment": "bylaw",
+    "triageTitle": "Uncleared icy sidewalk",
+    "triageExplanation": "Property owner not complying with snow clearing bylaw"
+  },
+  {
+    "type": "graffiti",
+    "description": "New graffiti on the K&P Trail underpass near the downtown. Offensive imagery spray painted on both walls of the tunnel. This is a popular walking route for families.",
+    "latitude": 44.2345,
+    "longitude": -76.4923,
+    "address": "K&P Trail Underpass, Kingston, ON",
+    "status": "new",
+    "severity": "medium",
+    "suggestedDepartment": "parks",
+    "triageTitle": "Offensive graffiti on K&P Trail",
+    "triageExplanation": "Vandalism with inappropriate content on public trail"
   }
 ]

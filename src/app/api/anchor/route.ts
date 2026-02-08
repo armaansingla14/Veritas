@@ -3,7 +3,7 @@ import { anchorHashToSolana, isSolanaEnabled } from "@/lib/solana";
 import { updateWithSolanaTx, verifyHashChain } from "@/lib/audit";
 import { db } from "@/lib/db";
 import { auditLog } from "@/drizzle/schema";
-import { eq, desc } from "drizzle-orm";
+import { isNotNull, desc } from "drizzle-orm";
 
 // POST - Anchor a hash to Solana
 export async function POST(request: NextRequest) {
@@ -66,7 +66,7 @@ export async function GET() {
     const latestAnchored = await db
       .select()
       .from(auditLog)
-      .where(eq(auditLog.solanaTxSignature, auditLog.solanaTxSignature))
+      .where(isNotNull(auditLog.solanaTxSignature))
       .orderBy(desc(auditLog.createdAt))
       .limit(1);
 

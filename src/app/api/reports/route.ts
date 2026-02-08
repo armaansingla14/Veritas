@@ -4,6 +4,7 @@ import { reports, type NewReport } from "@/drizzle/schema";
 import { eq, desc, and, like } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { logAction } from "@/lib/audit";
+import { geocodeAddress } from "@/lib/geocode";
 
 // GET - List reports with optional filters
 export async function GET(request: NextRequest) {
@@ -51,7 +52,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const {
+    let {
       type,
       description,
       latitude,
@@ -59,14 +60,35 @@ export async function POST(request: NextRequest) {
       address,
       photoUrl,
       sessionId,
+      severity,
+      source,
     } = body;
 
     // Validation
-    if (!type || !description || !latitude || !longitude || !address) {
+    if (!type || !description || !address) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
+    }
+
+    // If latitude/longitude not provided, geocode the address
+    if (!latitude || !longitude) {
+      try {
+        const geocoded = await geocodeAddress(address);
+        if (geocoded) {
+          latitude = geocoded.lat;
+          longitude = geocoded.lng;
+        } else {
+          // Default to Kingston city center
+          latitude = 44.2312;
+          longitude = -76.486;
+        }
+      } catch {
+        // Default to Kingston city center
+        latitude = 44.2312;
+        longitude = -76.486;
+      }
     }
 
     const validTypes = [
@@ -85,6 +107,9 @@ export async function POST(request: NextRequest) {
     const now = new Date();
     const id = uuidv4();
 
+    const validSeverities = ["low", "medium", "high"];
+    const reportSeverity = validSeverities.includes(severity) ? severity : "medium";
+
     const newReport: NewReport = {
       id,
       type,
@@ -94,7 +119,7 @@ export async function POST(request: NextRequest) {
       address,
       photoUrl: photoUrl || null,
       status: "new",
-      severity: "medium",
+      severity: reportSeverity,
       sessionId: sessionId || null,
       createdAt: now,
       updatedAt: now,
@@ -102,17 +127,19 @@ export async function POST(request: NextRequest) {
 
     await db.insert(reports).values(newReport);
 
-    // Log the action
-    await logAction("report", {
+    // Log the action and get the hash
+    const auditHash = await logAction("report", {
       reportId: id,
       type,
       address,
       hasPhoto: !!photoUrl,
+      source: source || "web",
     });
 
     return NextResponse.json({
       success: true,
       report: newReport,
+      auditHash,
       message: "Report submitted successfully"
     });
   } catch (error) {

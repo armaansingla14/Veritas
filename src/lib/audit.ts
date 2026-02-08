@@ -3,6 +3,7 @@ import { auditLog } from "@/drizzle/schema";
 import { desc, eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
+import { isSolanaEnabled, anchorHashToSolana } from "./solana";
 
 // Create SHA-256 hash
 function sha256(data: string): string {
@@ -49,6 +50,17 @@ export async function logAction(
     hash,
     createdAt: timestamp,
   });
+
+  // Auto-anchor to Solana if enabled (non-blocking)
+  if (isSolanaEnabled()) {
+    anchorHashToSolana(hash)
+      .then((result) => {
+        if (result.success && result.signature) {
+          updateWithSolanaTx(id, result.signature).catch(console.error);
+        }
+      })
+      .catch(console.error);
+  }
 
   return hash;
 }

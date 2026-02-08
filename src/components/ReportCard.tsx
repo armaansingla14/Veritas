@@ -14,15 +14,20 @@ import {
   Footprints,
   Paintbrush,
   HelpCircle,
+  Shield,
+  ThumbsUp,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { VoteButton } from "@/components/VoteButton";
 import type { Report } from "../../drizzle/schema";
 
 interface ReportCardProps {
-  report: Report;
+  report: Report & { voteCount?: number };
   onClick?: () => void;
   isSelected?: boolean;
+  sessionId?: string;
+  showVotes?: boolean;
 }
 
 const typeIcons: Record<string, React.ReactNode> = {
@@ -99,7 +104,7 @@ function formatDate(date: Date): string {
   return date.toLocaleDateString();
 }
 
-export function ReportCard({ report, onClick, isSelected }: ReportCardProps) {
+export function ReportCard({ report, onClick, isSelected, sessionId, showVotes = false }: ReportCardProps) {
   const status = statusConfig[report.status] || statusConfig.new;
   const severity = severityConfig[report.severity] || severityConfig.medium;
 
@@ -125,10 +130,20 @@ export function ReportCard({ report, onClick, isSelected }: ReportCardProps) {
               <h3 className="font-medium text-sm truncate text-white">
                 {report.triageTitle || `${typeLabels[report.type]} Report`}
               </h3>
-              <Badge variant={status.variant} className="flex-shrink-0">
-                <span className="mr-1">{status.icon}</span>
-                {status.label}
-              </Badge>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {showVotes && sessionId && (
+                  <VoteButton
+                    reportId={report.id}
+                    sessionId={sessionId}
+                    initialVoteCount={report.voteCount || 0}
+                    size="sm"
+                  />
+                )}
+                <Badge variant={status.variant}>
+                  <span className="mr-1">{status.icon}</span>
+                  {status.label}
+                </Badge>
+              </div>
             </div>
 
             <p className="text-sm text-slate-400 line-clamp-2 mb-2">
@@ -148,6 +163,16 @@ export function ReportCard({ report, onClick, isSelected }: ReportCardProps) {
               </span>
               <span className={`font-medium ${severity.color}`}>
                 {severity.label}
+              </span>
+              {report.voteCount !== undefined && report.voteCount > 0 && (
+                <span className="flex items-center gap-1 text-indigo-400">
+                  <ThumbsUp className="w-3 h-3" />
+                  {report.voteCount}
+                </span>
+              )}
+              <span className="flex items-center gap-1 text-purple-400" title="Verified on blockchain">
+                <Shield className="w-3 h-3" />
+                Verified
               </span>
             </div>
           </div>

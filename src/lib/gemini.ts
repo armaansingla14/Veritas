@@ -93,23 +93,25 @@ export async function generateText(prompt: string): Promise<string> {
 
 // Generate JSON response
 export async function generateJSON<T>(prompt: string): Promise<T> {
-  try {
-    const model = getGenerativeModel();
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseMimeType: "application/json",
-      },
-    });
-    const response = await result.response;
-    const text = response.text();
-    return JSON.parse(text) as T;
-  } catch (error) {
-    if (error instanceof GeminiError) {
-      throw error;
+  return withRetry(async () => {
+    try {
+      const model = getGenerativeModel();
+      const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseMimeType: "application/json",
+        },
+      });
+      const response = await result.response;
+      const text = response.text();
+      return JSON.parse(text) as T;
+    } catch (error) {
+      if (error instanceof GeminiError) {
+        throw error;
+      }
+      throw parseGeminiError(error);
     }
-    throw parseGeminiError(error);
-  }
+  });
 }
 
 // Generate embeddings for text

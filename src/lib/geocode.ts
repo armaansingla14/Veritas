@@ -8,29 +8,49 @@ export interface GeocodingResult {
   display: string;
 }
 
+export interface SearchOptions {
+  countryCode?: string;
+  nearLat?: number;
+  nearLng?: number;
+}
+
 /**
  * Searches for addresses matching a query using Nominatim API
  * @param query The search query
  * @param limit Maximum number of results to return (default 5)
+ * @param options Optional parameters for country filtering and location biasing
  * @returns Array of matching addresses
  */
 export async function searchAddresses(
   query: string,
-  limit: number = 5
+  limit: number = 5,
+  options?: SearchOptions
 ): Promise<GeocodingResult[]> {
   if (!query.trim()) {
     return [];
   }
 
   try {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=${limit}`,
-      {
-        headers: {
-          "User-Agent": "Veritas-CivicReporting/1.0",
-        },
-      }
-    );
+    // Build URL with optional parameters
+    let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=${limit}`;
+
+    // Add country filter (default to Canada)
+    const countryCode = options?.countryCode ?? "ca";
+    url += `&countrycodes=${countryCode}`;
+
+    // Add location bias if provided (creates a viewbox around the location)
+    if (options?.nearLat !== undefined && options?.nearLng !== undefined) {
+      // Create a ~50km bounding box around the user's location
+      const delta = 0.5; // roughly 50km
+      const viewbox = `${options.nearLng - delta},${options.nearLat + delta},${options.nearLng + delta},${options.nearLat - delta}`;
+      url += `&viewbox=${viewbox}&bounded=0`;
+    }
+
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent": "Veritas-CivicReporting/1.0",
+      },
+    });
 
     if (!response.ok) {
       console.error("Geocoding search failed:", response.status);

@@ -8,7 +8,7 @@ A civic clarity engine and issue reporting tool for the City of Kingston.
 - **Issue Reporting**: Report potholes, noise complaints, and other civic issues with photos and map locations
 - **AI-Assisted Triage**: Automatic severity assessment and department routing
 - **Dashboard**: Map and list views of all reported issues
-- **Multilingual Support**: Available in English, French, Spanish, Chinese, and Arabic
+- **Multilingual Support**: Available in English and French, with extensible i18n architecture
 - **Accessibility**: Large text mode, high contrast, and dark mode
 - **Trust Layer**: Tamper-evident audit logging with optional Solana blockchain anchoring
 
