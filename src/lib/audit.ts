@@ -1,0 +1,122 @@
+import { db } from "./db";
+import { auditLog } from "@/drizzle/schema";
+import { desc, eq } from "drizzle-orm";
+import { v4 as uuidv4 } from "uuid";
+import crypto from "crypto";
+
+// Create SHA-256 hash
+function sha256(data: string): string {
+  return crypto.createHash("sha256").update(data).digest("hex");
+}
+
+// Get the last audit log entry to maintain hash chain
+async function getLastEntry() {
+  const entries = await db
+    .select()
+    .from(auditLog)
+    .orderBy(desc(auditLog.createdAt))
+    .limit(1);
+  return entries[0] || null;
+}
+
+// Log an action with hash chain
+export async function logAction(
+  actionType: "qa" | "report",
+  payload: Record<string, unknown>
+): Promise<string> {
+  const id = uuidv4();
+  const timestamp = new Date();
+
+  // Get previous hash for chain
+  const lastEntry = await getLastEntry();
+  const prevHash = lastEntry?.hash || "genesis";
+
+  // Create hash of this entry
+  const hashData = JSON.stringify({
+    prevHash,
+    actionType,
+    payload,
+    timestamp: timestamp.getTime(),
+  });
+  const hash = sha256(hashData);
+
+  // Insert into database
+  await db.insert(auditLog).values({
+    id,
+    actionType,
+    payload: JSON.stringify(payload),
+    prevHash,
+    hash,
+    createdAt: timestamp,
+  });
+
+  return hash;
+}
+
+// Verify the hash chain integrity
+export async function verifyHashChain(): Promise<{
+  valid: boolean;
+  brokenAt?: string;
+  totalEntries: number;
+}> {
+  const entries = await db
+    .select()
+    .from(auditLog)
+    .orderBy(auditLog.createdAt);
+
+  if (entries.length === 0) {
+    return { valid: true, totalEntries: 0 };
+  }
+
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+    const expectedPrevHash = i === 0 ? "genesis" : entries[i - 1].hash;
+
+    if (entry.prevHash !== expectedPrevHash) {
+      return {
+        valid: false,
+        brokenAt: entry.id,
+        totalEntries: entries.length,
+      };
+    }
+
+    // Verify the hash itself
+    const hashData = JSON.stringify({
+      prevHash: entry.prevHash,
+      actionType: entry.actionType,
+      payload: JSON.parse(entry.payload),
+      timestamp: entry.createdAt.getTime(),
+    });
+    const expectedHash = sha256(hashData);
+
+    if (entry.hash !== expectedHash) {
+      return {
+        valid: false,
+        brokenAt: entry.id,
+        totalEntries: entries.length,
+      };
+    }
+  }
+
+  return { valid: true, totalEntries: entries.length };
+}
+
+// Get audit log entries
+export async function getAuditLog(limit: number = 100) {
+  return db
+    .select()
+    .from(auditLog)
+    .orderBy(desc(auditLog.createdAt))
+    .limit(limit);
+}
+
+// Update an entry with Solana transaction signature
+export async function updateWithSolanaTx(
+  entryId: string,
+  txSignature: string
+) {
+  await db
+    .update(auditLog)
+    .set({ solanaTxSignature: txSignature })
+    .where(eq(auditLog.id, entryId));
+}

@@ -1,0 +1,98 @@
+[
+  {
+    "type": "pothole",
+    "description": "Large pothole approximately 30cm in diameter on Princess Street near City Hall. The hole is deep enough to damage vehicle tires and has been growing over the past week. It's in the right lane of traffic and poses a hazard, especially at night when it's hard to see.",
+    "latitude": 44.2306,
+    "longitude": -76.4818,
+    "address": "216 Princess Street, Kingston, ON",
+    "status": "in_progress",
+    "severity": "high",
+    "suggestedDepartment": "roads",
+    "triageTitle": "Large pothole on Princess Street",
+    "triageExplanation": "Safety hazard on major downtown thoroughfare requiring urgent repair"
+  },
+  {
+    "type": "noise",
+    "description": "Ongoing loud music and parties from a house near Queen's University. The noise continues past midnight on weeknights, disturbing neighbors who need to work the next day. This has been happening for the past 3 weeks.",
+    "latitude": 44.2261,
+    "longitude": -76.4956,
+    "address": "125 Earl Street, Kingston, ON",
+    "status": "acknowledged",
+    "severity": "medium",
+    "suggestedDepartment": "bylaw",
+    "triageTitle": "Persistent noise violation near Queen's",
+    "triageExplanation": "Recurring noise bylaw violation affecting residential neighborhood"
+  },
+  {
+    "type": "graffiti",
+    "description": "Graffiti tags on the south wall of the Memorial Centre. Multiple spray paint markings covering approximately 10 square meters. The graffiti appeared over the weekend.",
+    "latitude": 44.2339,
+    "longitude": -76.4877,
+    "address": "303 York Street, Kingston, ON",
+    "status": "new",
+    "severity": "low",
+    "suggestedDepartment": "parks",
+    "triageTitle": "Graffiti at Memorial Centre",
+    "triageExplanation": "Vandalism on city property requiring cleanup"
+  },
+  {
+    "type": "streetlight",
+    "description": "Streetlight at the corner of Division Street and Princess Street is not working. The intersection is very dark at night making it unsafe for pedestrians crossing. The pole number is 2847.",
+    "latitude": 44.2301,
+    "longitude": -76.4927,
+    "address": "Division Street & Princess Street, Kingston, ON",
+    "status": "new",
+    "severity": "medium",
+    "suggestedDepartment": "utilities",
+    "triageTitle": "Broken streetlight at major intersection",
+    "triageExplanation": "Dark intersection creating pedestrian safety concern"
+  },
+  {
+    "type": "parking",
+    "description": "Vehicle has been parked in the same spot on Queen Street for over 2 weeks. It appears abandoned - flat tires, covered in dirt. Taking up valuable parking space in the downtown core.",
+    "latitude": 44.2312,
+    "longitude": -76.4796,
+    "address": "45 Queen Street, Kingston, ON",
+    "status": "resolved",
+    "severity": "low",
+    "suggestedDepartment": "parking",
+    "triageTitle": "Potentially abandoned vehicle downtown",
+    "triageExplanation": "Long-term parked vehicle potentially abandoned"
+  },
+  {
+    "type": "sidewalk",
+    "description": "Section of sidewalk on Brock Street is badly cracked and raised about 5cm, creating a trip hazard. Several pedestrians have nearly fallen. The raised section is about 2 meters long.",
+    "latitude": 44.2319,
+    "longitude": -76.4844,
+    "address": "89 Brock Street, Kingston, ON",
+    "status": "new",
+    "severity": "medium",
+    "suggestedDepartment": "roads",
+    "triageTitle": "Raised sidewalk trip hazard on Brock Street",
+    "triageExplanation": "Pedestrian safety hazard requiring repair"
+  },
+  {
+    "type": "pothole",
+    "description": "Multiple potholes on Bath Road near the Gardiners Road intersection. There are 3-4 holes of various sizes in the westbound lane. Traffic swerves to avoid them, creating dangerous situations.",
+    "latitude": 44.2401,
+    "longitude": -76.5412,
+    "address": "Bath Road at Gardiners Road, Kingston, ON",
+    "status": "acknowledged",
+    "severity": "high",
+    "suggestedDepartment": "roads",
+    "triageTitle": "Multiple potholes on Bath Road",
+    "triageExplanation": "Multiple road hazards causing traffic safety issues"
+  },
+  {
+    "type": "other",
+    "description": "Overflowing garbage can in Lake Ontario Park near the main pavilion. The garbage has been piling up and is attracting seagulls and other wildlife. Trash is blowing around the park area.",
+    "latitude": 44.2198,
+    "longitude": -76.4912,
+    "address": "Lake Ontario Park, Kingston, ON",
+    "status": "new",
+    "severity": "low",
+    "suggestedDepartment": "parks",
+    "triageTitle": "Overflowing garbage at Lake Ontario Park",
+    "triageExplanation": "Park maintenance issue affecting visitor experience"
+  }
+]
