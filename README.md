@@ -2,6 +2,10 @@
 
 A civic clarity engine and issue reporting tool for the City of Kingston.
 
+🏆 Built at QHacks 2026  
+🔗 Devpost: https://devpost.com/software/veritas-gbqc0h  
+🎥 Demo Video: https://youtu.be/sJOm-jkIVQA?si=msw0Yb2wF1ZL6zJ1
+
 ## Features
 
 - **RAG-Powered Q&A**: Ask questions about city services with mandatory citations
